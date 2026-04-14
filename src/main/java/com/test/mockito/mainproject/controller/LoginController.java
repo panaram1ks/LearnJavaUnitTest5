@@ -12,11 +12,16 @@ public class LoginController {
     public String login(HttpServletRequest request) {
         final String username = request.getParameter("username");
         final String password = request.getParameter("password");
-        final var userAccount = accountService.auth(username, password);
-        if (userAccount == null) {
-            return "login";
-        } else {
-            return "main";
+        try {
+            final var userAccount = accountService.auth(username, password);
+            if (userAccount == null) {
+                return "login";
+            } else {
+                return "main";
+            }
+        } catch (Exception e) {
+//            throw new RuntimeException(e);
+            return "5xx";
         }
     }
 }
