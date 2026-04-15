@@ -4,6 +4,7 @@ import com.test.mockito.mainproject.mockito.GoogleCloudStorageService;
 import com.test.mockito.mainproject.mockito.StorageService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -98,6 +99,52 @@ class MockitoStablingStatementTest {
             boolean result = this.storageService.uploadToCloud(null);
             assertThat(result, is(equalTo(false)));
             verify(googleCloudStorageService, times(0)).store(any(byte[].class));
+        }
+
+    }
+
+    @DisplayName("when...thenThrow / doThrow...when")
+    @Nested
+    class NestedWhenThenThrowAndDoThrowWhenStatement {
+
+        @Mock
+        private List<String> list;
+
+        @Test
+        void testWhenThenThrowStatement() {
+            when(list.get(0)).thenThrow(RuntimeException.class);
+            when(list.get(1)).thenThrow(new RuntimeException());
+            final Executable executable0 = () -> list.get(0);
+            final Executable executable1 = () -> list.get(1);
+//            Assertions.assertThrows(RuntimeException.class, executable0);
+//            Assertions.assertThrows(RuntimeException.class, executable1);
+            Assertions.assertAll(
+                    () -> Assertions.assertThrows(RuntimeException.class, executable0),
+                    () -> Assertions.assertThrows(RuntimeException.class, executable1)
+            );
+        }
+
+        @Test
+        void testDoThrowWhenStatement(){
+            doThrow(NullPointerException.class).when(list).get(0);
+            doThrow(IndexOutOfBoundsException.class).when(list).get(1);
+            final Executable executable0 = () -> list.get(0);
+            final Executable executable1 = () -> list.get(1);
+            Assertions.assertThrows(NullPointerException.class, executable0);
+            Assertions.assertThrows(IndexOutOfBoundsException.class, executable1);
+        }
+
+        @Test
+        void testVoidMethod() throws IOException {
+            GoogleCloudStorageService googleCloudStorageServiceMock = mock(GoogleCloudStorageService.class);
+//            when(googleCloudStorageServiceMock.store(any(byte[].class))).thenThrow(new IOException()); // так делать не разрешено
+            doThrow(IOException.class).when(googleCloudStorageServiceMock).store(any(byte[].class));
+            final Executable executable = () -> googleCloudStorageServiceMock.store(new byte[]{0x1,0x2});
+            Assertions.assertThrows(IOException.class, executable);
+
+//            doThrow(Exception.class).when(list).get(0); // Checked Exception is not allowed here!
+//            Executable executable1 = () -> list.get(0);
+//            Assertions.assertThrows(Exception.class, executable1);
         }
 
     }
