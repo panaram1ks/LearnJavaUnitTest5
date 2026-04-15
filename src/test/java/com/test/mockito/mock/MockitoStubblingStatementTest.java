@@ -166,7 +166,7 @@ class MockitoStablingStatementTest {
         private List<String> list;
 
         @Test
-        void testWhenThenAnswerStatement(){
+        void testWhenThenAnswerStatement() {
 //            when(list.get(anyInt())).thenAnswer(answer);
             doAnswer(answer).when(list).get(anyInt());
             Assertions.assertEquals("Mockito:1", list.get(1));
@@ -181,13 +181,13 @@ class MockitoStablingStatementTest {
 
     @DisplayName("when...thenCallRealMethod / doCallRealMethod...when")
     @Nested
-    class NestedCallRealMethod{
+    class NestedCallRealMethod {
         @Mock
         private LinkedList<String> list;
 
         // partial stabling
         @Test
-        void simpleTest(){
+        void simpleTest() {
             when(list.add(anyString())).thenCallRealMethod();
             when(list.size()).thenCallRealMethod();
 
@@ -207,7 +207,7 @@ class MockitoStablingStatementTest {
         private PartialService partialService;
 
         @Test
-        void testWhenThenCallRealMethod(){
+        void testWhenThenCallRealMethod() {
 //            doCallRealMethod().when(partialService).getFromExternal();
             when(partialService.getRandom()).thenCallRealMethod();
             when(partialService.getFromExternal()).thenReturn(5);
@@ -220,6 +220,23 @@ class MockitoStablingStatementTest {
         }
     }
 
+    @DisplayName("return multiple values at one stabling statement")
+    @Nested
+    class NestedMultipleReturnValues {
+
+        @Test
+        void testReturnMultipleValues(@Mock List<String> list) {
+//            when(list.get(0)).thenReturn("Hello", "Junit", "Mockito");
+            doReturn("Hello", "Junit", "Mockito").when(list).get(0);
+            Assertions.assertAll(
+                    () -> assertThat(list.get(0), is(equalTo("Hello"))),
+                    () -> assertThat(list.get(0), is(equalTo("Junit"))),
+                    () -> assertThat(list.get(0), is(equalTo("Mockito"))),
+                    () -> assertThat(list.get(0), is(equalTo("Mockito")))
+            );
+        }
+
+    }
 
 
 }
