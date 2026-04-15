@@ -1,5 +1,6 @@
 package com.test.mockito.mock;
 
+import com.test.mockito.mainproject.mockito.PartialService;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,7 +15,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.spy;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.*;
 
 @DisplayName("Spying tutorial")
 @ExtendWith(MockitoExtension.class)
@@ -54,5 +56,23 @@ public class MockitoSpyingTest {
                 () -> MatcherAssert.assertThat(this.linkedList.get(1), is(equalTo("Mockito")))
         );
 
+    }
+
+    @Spy
+    private PartialService partialService;
+
+    @Test
+    void testSpyingOnPartialService() {
+        Assertions.assertAll(
+                () -> MatcherAssert.assertThat(partialService.getRandom(), notNullValue()),
+                () -> MatcherAssert.assertThat(partialService.getRandom(), lessThan(100)),
+                () -> Assertions.assertThrows(RuntimeException.class, () -> partialService.getFromExternal())
+        );
+        // Со Spy объектом не работает
+//        when(partialService.getFromExternal()).thenReturn(5);
+//        Assertions.assertEquals(5, partialService.getFromExternal());
+
+        doReturn(5).when(partialService).getFromExternal();
+        MatcherAssert.assertThat(partialService.getFromExternal(), equalTo(5));
     }
 }
