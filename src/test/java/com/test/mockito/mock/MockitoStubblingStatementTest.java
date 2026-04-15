@@ -7,6 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.stubbing.Answer;
+import org.mockito.stubbing.OngoingStubbing;
 
 import java.io.IOException;
 import java.util.List;
@@ -125,7 +127,7 @@ class MockitoStablingStatementTest {
         }
 
         @Test
-        void testDoThrowWhenStatement(){
+        void testDoThrowWhenStatement() {
             doThrow(NullPointerException.class).when(list).get(0);
             doThrow(IndexOutOfBoundsException.class).when(list).get(1);
             final Executable executable0 = () -> list.get(0);
@@ -139,7 +141,7 @@ class MockitoStablingStatementTest {
             GoogleCloudStorageService googleCloudStorageServiceMock = mock(GoogleCloudStorageService.class);
 //            when(googleCloudStorageServiceMock.store(any(byte[].class))).thenThrow(new IOException()); // так делать не разрешено
             doThrow(IOException.class).when(googleCloudStorageServiceMock).store(any(byte[].class));
-            final Executable executable = () -> googleCloudStorageServiceMock.store(new byte[]{0x1,0x2});
+            final Executable executable = () -> googleCloudStorageServiceMock.store(new byte[]{0x1, 0x2});
             Assertions.assertThrows(IOException.class, executable);
 
 //            doThrow(Exception.class).when(list).get(0); // Checked Exception is not allowed here!
@@ -149,4 +151,28 @@ class MockitoStablingStatementTest {
 
     }
 
+    @DisplayName("doAnswer...when / when...thenAnswer")
+    @Nested
+    class NestedDoAnswerWhenAndThenAnswerWhen {
+        private final Answer<String> answer = invocationOnMock -> {
+            Integer index = invocationOnMock.getArgument(0, Integer.class);
+            return "Mockito:" + index;
+        };
+
+        @Mock
+        private List<String> list;
+
+        @Test
+        void testWhenThenAnswerStatement(){
+//            when(list.get(anyInt())).thenAnswer(answer);
+            doAnswer(answer).when(list).get(anyInt());
+            Assertions.assertEquals("Mockito:1", list.get(1));
+            Assertions.assertAll(
+                    () -> assertThat(list.get(0), is(equalTo("Mockito:0"))),
+                    () -> assertThat(list.get(5), is(equalTo("Mockito:5"))),
+                    () -> assertThat(list.get(12), is(equalTo("Mockito:12")))
+            );
+        }
+
+    }
 }
