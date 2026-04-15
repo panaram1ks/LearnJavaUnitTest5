@@ -1,6 +1,7 @@
 package com.test.mockito.mock;
 
 import com.test.mockito.mainproject.mockito.GoogleCloudStorageService;
+import com.test.mockito.mainproject.mockito.PartialService;
 import com.test.mockito.mainproject.mockito.StorageService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +12,8 @@ import org.mockito.stubbing.Answer;
 import org.mockito.stubbing.OngoingStubbing;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -175,4 +178,48 @@ class MockitoStablingStatementTest {
         }
 
     }
+
+    @DisplayName("when...thenCallRealMethod / doCallRealMethod...when")
+    @Nested
+    class NestedCallRealMethod{
+        @Mock
+        private LinkedList<String> list;
+
+        // partial stabling
+        @Test
+        void simpleTest(){
+            when(list.add(anyString())).thenCallRealMethod();
+            when(list.size()).thenCallRealMethod();
+
+            list.add("one");
+            list.add("two");
+
+            assertThat(list.size(), equalTo(2));
+            assertThat(list.get(0), nullValue());
+        }
+    }
+
+
+    @Nested
+    class NestedPartialServiceTest {
+
+        @Mock
+        private PartialService partialService;
+
+        @Test
+        void testWhenThenCallRealMethod(){
+//            doCallRealMethod().when(partialService).getFromExternal();
+            when(partialService.getRandom()).thenCallRealMethod();
+            when(partialService.getFromExternal()).thenReturn(5);
+
+            int random = partialService.getRandom();
+            int fromExternal = partialService.getFromExternal();
+
+            assertThat(fromExternal, equalTo(5));
+            assertThat(random, lessThan(100));
+        }
+    }
+
+
+
 }
