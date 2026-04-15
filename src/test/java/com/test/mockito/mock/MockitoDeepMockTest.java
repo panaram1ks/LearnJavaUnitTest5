@@ -29,6 +29,7 @@ class MockitoDeepMockTest {
         void testGetValue() {
             String value = externalServiceFactory.createExternalService().getValue();
             assertThat(value, is(equalTo(null)));
+
         }
     }
 
