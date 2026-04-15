@@ -238,5 +238,26 @@ class MockitoStablingStatementTest {
 
     }
 
+    @DisplayName("Mockito cascading code style at stabling statement")
+    @Nested
+    class NestedCascadingCodeStyle {
+
+        @Test
+        void testCascadingCodeStyle(@Mock List<String> list) {
+            when(list.get(0))
+                    .thenReturn("Hello")
+                    .thenReturn("Mockito")
+                    .thenThrow(RuntimeException.class)
+                    .thenAnswer(invocationOnMock -> "Junit");
+
+            Assertions.assertAll(
+                    () -> assertThat(list.get(0), equalTo("Hello")),
+                    () -> assertThat(list.get(0), equalTo("Mockito")),
+                    () -> Assertions.assertThrows(RuntimeException.class, () -> list.get(0)),
+                    () -> assertThat(list.get(0), equalTo("Junit"))
+            );
+        }
+    }
+
 
 }
