@@ -9,9 +9,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -65,11 +68,19 @@ class UserServiceTest {
 
         assertAll(
                 () -> assertThat(effortUpdate, equalTo(1)),
-                () -> verify(userDao, times(1)).exist(any(User.class)),
-                () -> verify(userDao, times(1)).updateUser(any(User.class)),
-                () -> verify(userDao, times(0)).saveUser(any(User.class))
+                () -> verify(userDao, atMostOnce()).exist(any(User.class)),
+                () -> verify(userDao, atMost(1)).updateUser(any(User.class)),
+                () -> verify(userDao, never()).saveUser(any(User.class))
         );
+    }
 
+    @Test
+    void testVerificationMode(@Mock List<String> list){
+        list.add("Hello");
+        verify(list, atLeast(1)).add(anyString());
+        verify(list, atLeastOnce()).add(anyString());
+        verify(list, only()).add(argThat(str -> str.length() >= 5));
+        verify(list, never()).clear();
     }
 
 }
