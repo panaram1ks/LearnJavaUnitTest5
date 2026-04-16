@@ -75,12 +75,25 @@ class UserServiceTest {
     }
 
     @Test
-    void testVerificationMode(@Mock List<String> list){
+    void testVerificationMode(@Mock List<String> list) {
         list.add("Hello");
         verify(list, atLeast(1)).add(anyString());
         verify(list, atLeastOnce()).add(anyString());
         verify(list, only()).add(argThat(str -> str.length() >= 5));
         verify(list, never()).clear();
+    }
+
+    @Test
+    void testVerifyInteractions(@Mock List<String> list1, @Mock List<String> list2) {
+        list1.add("Mockito");
+
+        verifyNoInteractions(list2);
+        verify(list1).add("Mockito");
+
+        list1.clear();
+        verify(list1).clear();
+
+        verifyNoMoreInteractions(list1);
     }
 
 }
