@@ -1,0 +1,24 @@
+package service;
+
+
+import dao.UserDao;
+import model.User;
+
+public class UserService {
+
+    private UserDao userDao;
+
+    public UserService(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    public int saveOrUpdate(User user) {
+        return this.userDao.merge(user);
+    }
+
+    public int deleteUser(String id) {
+        final User user = new User(id);
+        user.setStatus("D");
+        return this.userDao.updateUser(user);
+    }
+}
