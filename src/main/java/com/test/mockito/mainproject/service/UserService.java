@@ -14,4 +14,10 @@ public class UserService {
     public int saveOrUpdate(User user) {
         return this.userDao.merge(user);
     }
+
+    public int deleteUser(String id) {
+        final User user = new User(id);
+        user.setStatus("D");
+        return this.userDao.updateUser(user);
+    }
 }
