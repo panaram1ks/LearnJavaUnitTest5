@@ -14,15 +14,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Map;
 
+import static com.test.mockito.mainproject.mockito.ClosedRangeArgumentMatcher.closedRange;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @DisplayName("The argument Matcher")
 @ExtendWith(MockitoExtension.class)
-public class ArgumentMatcherTest {
+class ArgumentMatcherTest {
 
     @Test
     void simpleArgumentTest(@Mock List<String> list) {
@@ -36,7 +38,7 @@ public class ArgumentMatcherTest {
         ))).thenReturn("Power_mock");
         when(list.get(intThat(arg -> arg >= 10))).thenReturn("My Name");
 
-        Assertions.assertAll(
+        assertAll(
                 () -> assertThat(list.get(1), equalTo("Mockito")),
                 () -> assertThat(list.get(2), equalTo("Mockito")),
 
@@ -52,5 +54,21 @@ public class ArgumentMatcherTest {
         when(map.getOrDefault(anyString(), anyString())).thenReturn("I am value");
         assertThat(map.getOrDefault("Hello", "World"), is(equalTo("I am value")));
     }
+
+    @Test
+    void testCustomArgumentMatcher(@Mock List<String> list) {
+        // stabbing
+        when(list.get(intThat(closedRange(0, 10)))).thenReturn("Mockito");
+        when(list.get(intThat(closedRange(11, 20)))).thenReturn("PowerMock");
+        when(list.get(intThat(closedRange(21, Integer.MAX_VALUE)))).thenReturn("MaxMock");
+
+        // assertion
+        assertAll(
+                () -> assertThat(list.get(5), equalTo("Mockito")),
+                () -> assertThat(list.get(15), equalTo("PowerMock")),
+                () -> assertThat(list.get(25), equalTo("MaxMock"))
+        );
+    }
+
 
 }
